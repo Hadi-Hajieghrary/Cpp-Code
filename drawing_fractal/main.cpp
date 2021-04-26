@@ -1,7 +1,8 @@
 
 #include <iostream>
 #include <cmath>
-
+#include <thread>
+#include <chrono>
 
 #include "include/bitmap.hpp"
 
@@ -105,8 +106,8 @@ void saveToImage(MandelBrotFractal m_b_fractal, char* file_name, Color color, in
 
 int main(int argc, const char * argv[]) {
 
-    const size_t width = 3840/5;
-    const size_t height = 2160/5;
+    const size_t width = 3840;
+    const size_t height = 2160;
     const unsigned int max_iteration = 1000;
     int* historgram = new int[max_iteration + 1]{0};
     int* fractal = new int[width * height]{0};
@@ -119,11 +120,48 @@ int main(int argc, const char * argv[]) {
                                             historgram, fractal, 
                                             scale, center};
     
-    DrawMandelBrot(mandel_brot_fractal, Box{Point{0,0}, 384, 216});
-    DrawMandelBrot(mandel_brot_fractal, Box{Point{1*384,0*216},384,216});
-    DrawMandelBrot(mandel_brot_fractal, Box{Point{0*384,1*216},384,216});
-    DrawMandelBrot(mandel_brot_fractal, Box{Point{1*384,1*216},384,216});
+    std::chrono::duration<long,std::nano> exec_duration;
+    std::chrono::steady_clock::time_point exec_start;
+    std::chrono::steady_clock::time_point exec_end;
+
+    /*
+    // Concurrent
+    // Sec: 23, MiliSec: 984, MicroSec: 879, NanoSec: 61
+    // Processor Type Intel(R) Core(TM) i5-5257U CPU @ 2.70GHz
+    exec_start = std::chrono::steady_clock::now();
+    DrawMandelBrot(mandel_brot_fractal, Box{Point{0*width/2,0*height/2}, width/2, height/2});
+    DrawMandelBrot(mandel_brot_fractal, Box{Point{1*width/2,0*height/2}, width/2, height/2});
+    DrawMandelBrot(mandel_brot_fractal, Box{Point{0*width/2,1*height/2}, width/2, height/2});
+    DrawMandelBrot(mandel_brot_fractal, Box{Point{1*width/2,1*height/2}, width/2, height/2});
+    exec_end = std::chrono::steady_clock::now();
+    */
     
+    // Parallel
+    //Sec: 9, MiliSec: 641, MicroSec: 461, NanoSec: 544
+    // Processor Type Intel(R) Core(TM) i5-5257U CPU @ 2.70GHz
+    exec_start = std::chrono::steady_clock::now();
+    thread t1(DrawMandelBrot, mandel_brot_fractal, Box{Point{0*width/2,0*height/2}, width/2, height/2});
+    thread t2(DrawMandelBrot, mandel_brot_fractal, Box{Point{1*width/2,0*height/2}, width/2, height/2});
+    thread t3(DrawMandelBrot, mandel_brot_fractal, Box{Point{0*width/2,1*height/2}, width/2, height/2});
+    thread t4(DrawMandelBrot, mandel_brot_fractal, Box{Point{1*width/2,1*height/2}, width/2, height/2});
+    
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+    exec_end = std::chrono::steady_clock::now();
+
+
+    exec_duration = exec_end - exec_start;
+    auto secs = std::chrono::duration_cast<std::chrono::seconds>(exec_duration);
+    exec_duration -= secs;
+    auto mili_secs = std::chrono::duration_cast<std::chrono::milliseconds>(exec_duration);
+    exec_duration -= mili_secs;
+    auto micro_secs = std::chrono::duration_cast<std::chrono::microseconds>(exec_duration);
+    exec_duration -= micro_secs;
+    auto nano_secs = exec_duration;
+
+    std::cout<< "Sec: "<<secs.count()<<", MiliSec: "<<mili_secs.count()<<", MicroSec: "<<micro_secs.count()<<", NanoSec: "<<nano_secs.count()<<std::endl;
     char file_name[]{"MandelBrot.bmp"};
     saveToImage(mandel_brot_fractal, file_name, Color::red);
 
