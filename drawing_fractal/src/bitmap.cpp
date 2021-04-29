@@ -4,12 +4,15 @@
 
 void Bitmap::setPixel(size_t x, size_t y, uint8_t red, uint8_t green, uint8_t blue){
     
-    uint8_t* cur_pixel = bitmap_pixels_ + (x + width_ * y)*3;
-    
-    cur_pixel[0] = blue;
-    cur_pixel[1] = green;
-    cur_pixel[2] = red;
-    
+    if (x<width_ && y<height_){
+        uint8_t* cur_pixel = bitmap_pixels_ + (x + width_ * y)*3;
+        cur_pixel[0] = blue;
+        cur_pixel[1] = green;
+        cur_pixel[2] = red;
+    }else{
+        throw "Out of range!";
+    }
+
 }
 
 bool Bitmap::save(const char* file_name){
@@ -27,7 +30,6 @@ bool Bitmap::save(const char* file_name){
     file.write((char*)(bitmap_pixels_), width_*height_*3);
     
     saved = true;
-    
     
     file.close();
     if (saved && !file.is_open()){

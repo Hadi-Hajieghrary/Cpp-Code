@@ -71,6 +71,23 @@ public:
             info_header_.height =  height_;
         
         }
+    Bitmap(uint32_t* rgba, uint32_t width, uint32_t height)
+        :width_(width), height_(height)
+        {
+            file_header_.file_size = sizeof(file_header_) + sizeof(info_header_) + width_*height_*3;
+            file_header_.offset = sizeof(file_header_) + sizeof(info_header_);
+            
+            info_header_.width = width_;
+            info_header_.height =  height_;
+
+            bitmap_pixels_ = new uint8_t[width_ * height_ * 3];
+            for(size_t i = 0; i < width_*height_; i++){
+                bitmap_pixels_[3*i] = *(reinterpret_cast<uint8_t*>(rgba+i));
+                bitmap_pixels_[3*i+1] = *(reinterpret_cast<uint8_t*>(rgba+i)+1);
+                bitmap_pixels_[3*i+2] = *(reinterpret_cast<uint8_t*>(rgba+i)+2);
+            }
+        }
+
 
     virtual ~Bitmap(){
         if (bitmap_pixels_ != nullptr){
