@@ -2,7 +2,7 @@ Author: Hadi.Hajieghrary@Gmail.Com
 LinkedIn: https://www.linkedin.com/in/hadihajieghrary/
 
 
-![Alt Text](https://github.com/Hadi-Hajieghrary/Cpp-Code/blob/master/fireworks_animation/movie.gif)
+![](https://github.com/Hadi-Hajieghrary/Cpp-Code/blob/master/fireworks_animation/movie.gif)
 
 
 ---
