@@ -2,7 +2,7 @@
 
 Perceptron::Perceptron()
     :input_dimention_{1}, activation_function_{sigmoid}, 
-        bias_{1.0}, weights_{VectorXd(input_dimention_+1)}
+        bias_{1.0}, weights_{new double[input_dimention_+1]}
     {
         // Initialize weights with random [-1,1]
         randomInitializeWeights();
@@ -12,12 +12,12 @@ Perceptron::Perceptron()
 void Perceptron::reScaleInput(int input_dimention)
     {
         input_dimention_ = input_dimention;
-        weights_  = VectorXd(input_dimention_+1);
+        weights_  = new double[input_dimention_+1]{0};
     }
 
-Perceptron::Perceptron(int input_dimention, double bias, std::function<double(double)> activation_function)
+Perceptron::Perceptron(int input_dimention, double bias, double (*activation_function)(double))
     :input_dimention_{input_dimention}, activation_function_{activation_function}, 
-        bias_{bias}, weights_{VectorXd(input_dimention_+1)}
+        bias_{bias}, weights_{new double[input_dimention_+1]}
     {
         // Initialize weights with random [-1,1]
         randomInitializeWeights();
@@ -26,29 +26,25 @@ Perceptron::Perceptron(int input_dimention, double bias, std::function<double(do
 
 void Perceptron::randomInitializeWeights()
     {
-        weights_ = VectorXd::Random(this->input_dimention_ + 1);
-    }
-
-void Perceptron::setWeights(VectorXd& weights)
-    {
-        if(weights.rows() == this->input_dimention_ + 1){
-            weights_ = weights;
-        }else{
-            throw Dimension_MisMatch(weights.rows(), this->input_dimention_ + 1);
+        std::random_device rd;
+        std::mt19937 random_generator(rd()); 
+        std::uniform_real_distribution<> uniform_distribution(-1.0, 1.0);
+        for(int  i = 0; i< this->input_dimention_ + 1; i++){
+            weights_[i] = uniform_distribution(random_generator);
         }
     }
 
-void Perceptron::setWeights(VectorXd&& weights){
-    if(weights.rows() == this->input_dimention_ + 1){
-        weights_ = weights;
-    }else{
-        throw Dimension_MisMatch(weights.rows(), this->input_dimention_ + 1);
+void Perceptron::setWeights(const double* weights)
+    {
+        for(size_t i = 0; i<this->input_dimention_ + 1; ++i){
+            weights_[i] = weights[i];
+        }
     }
-}
+
 
 void Perceptron::setWeight(size_t index, double value){
     if(index < this->input_dimention_ + 1){
-        weights_(index) = value;
+        weights_[index] = value;
     }else{
         char msg[50]{0};
         sprintf(msg, "There are %d weights. %d is out of range!", this->input_dimention_ + 1, (int)index);
@@ -61,38 +57,32 @@ void Perceptron::setBias(int bias)
         bias_ = bias;
     }
 
-void Perceptron::setActivationFunction(std::function<double(double)> activation_function)
+void Perceptron::setActivationFunction(double (*activation_function)(double))
     {
         activation_function_ = activation_function;
     }
 
-double Perceptron::run(VectorXd inputs)
+double Perceptron::run(double* inputs)
     {
         
-        double result{0};
-        if(inputs.rows() == this->input_dimention_){
-            inputs.conservativeResize(this->input_dimention_ + 1);
-            inputs(this->input_dimention_) = bias_;
-            result = inputs.dot(weights_);
-        }else{
-            throw Dimension_MisMatch(inputs.rows(), this->input_dimention_);
+        double result{bias_*weights_[input_dimention_]};
+        for(size_t i{0}; i < input_dimention_; ++i){
+            result += weights_[i]*inputs[i];
         }
-        
         result = activation_function_(result);
         output_ = result;
         return result;
     }
 
 
-VectorXd Perceptron::getWeights() const{
-    VectorXd result{weights_}; 
-    return result;
+const double* Perceptron::getWeights() const{
+    return weights_;
 }
 
 double Perceptron::getWeight(size_t index) const{
     double result;
     if(index < this->input_dimention_ + 1){
-        result = weights_(index);
+        result = weights_[index];
     }else{
         char msg[50]{0};
         sprintf(msg, "There are %d weights. %d is out of range!", this->input_dimention_ + 1, (int)index);

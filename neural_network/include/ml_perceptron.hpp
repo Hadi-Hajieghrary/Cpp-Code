@@ -3,24 +3,14 @@
 
 #include <cmath>
 #include <random>
-#include <functional>
-#include <algorithm>
 #include <iostream>
 #include <thread>
 #include <mutex>
-#include <vector>
-
-#include <Eigen/Dense>
 
 #include "exceptions.hpp"
 #include "utilities.hpp"
 #include "perceptron.hpp"
 
-
-
-
-using Eigen::VectorXd;
-using Eigen::MatrixXd;
 
 class MultiLayerPerceptron{
 
@@ -34,6 +24,8 @@ class MultiLayerPerceptron{
         
         Perceptron** perceptrons_ = nullptr;  
 
+        typedef double(*func_ptr_t)(double);
+
     protected:
         void runOneLayer(size_t layer);
 
@@ -42,7 +34,7 @@ class MultiLayerPerceptron{
         static void initializePerceptrons(const int input_dimention, const int number_of_layers, 
                                             const int* number_of_perceptrons_in_layers,
                                             double** biases,
-                                            std::function<double(double)>** activation_functions,
+                                            func_ptr_t** activation_functions,
                                             Perceptron**& perceptrons);
 
         MultiLayerPerceptron(const int input_dimention, const int number_of_layers, 
@@ -50,7 +42,7 @@ class MultiLayerPerceptron{
 
         ~MultiLayerPerceptron() = default;
 
-        double run(VectorXd inputs);
+        double run(double* inputs);
 
         Perceptron* getPerceptron(int layer, int row);
 

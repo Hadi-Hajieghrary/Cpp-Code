@@ -14,8 +14,8 @@ MultiLayerPerceptron::MultiLayerPerceptron(const int input_dimention, const int 
 
 void MultiLayerPerceptron::initializePerceptrons(const int input_dimention, const int number_of_layers, 
                                                     const int* number_of_perceptrons_in_layers,
-                                                    double**  biases,
-                                                    std::function<double(double)>** activation_functions,
+                                                    double** biases,
+                                                    func_ptr_t** activation_functions,
                                                     Perceptron**& perceptrons)
    {
         perceptrons = new Perceptron*[number_of_layers];
@@ -25,7 +25,6 @@ void MultiLayerPerceptron::initializePerceptrons(const int input_dimention, cons
         for(int j = 0; j<number_of_perceptrons_in_layers[0]; ++j){
             perceptrons[0][j].reScaleInput(input_dimention);
             perceptrons[0][j].setBias(biases[0][j]);
-            std::cout<<&activation_functions[0][j]<<std::endl;
             perceptrons[0][j].setActivationFunction(activation_functions[0][j]);
             perceptrons[0][j].randomInitializeWeights();
         }

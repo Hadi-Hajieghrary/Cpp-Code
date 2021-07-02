@@ -16,31 +16,38 @@ void Print(double** matrix, const size_t row, const size_t col, const char* titl
 
 void Test_Perceptron(){
 
-    Perceptron* p = new Perceptron(2);
-    p->setWeights({10,10,-15});
+    constexpr size_t number_of_inputs{2};
+    Perceptron* p = new Perceptron(number_of_inputs);
+    double inp[number_of_inputs]{0.0};
+    double W[number_of_inputs+1]{10,10,-15};
+    p->setWeights(W);
     
     printf("*** Testing The Perceptron Class ***\n");
-        printf("%d AND %d = %f\n", 0, 0, p->run({0,0}));
-        printf("%d AND %d = %f\n", 1, 0, p->run({1,0}));
-        printf("%d AND %d = %f\n", 0, 1, p->run({0,1}));
-        printf("%d AND %d = %f\n", 1, 1, p->run({1,1}));
+        inp[0] = 0; inp[1] = 0;
+        printf("%d AND %d = %f\n", 0, 0, p->run(inp));
+        inp[0] = 1; inp[1] = 0;
+        printf("%d AND %d = %f\n", 1, 0, p->run(inp));
+        inp[0] = 0; inp[1] = 1;
+        printf("%d AND %d = %f\n", 0, 1, p->run(inp));
+        inp[0] = 1; inp[1] = 1;
+        printf("%d AND %d = %f\n", 1, 1, p->run(inp));
     printf("*** END ***\n");
 
 }
 
 
 void Test_MLPerceptron(){
-
+    typedef double(*func_ptr_t)(double);
     printf("*** Testing The MLP Class ***\n");
     constexpr int input_dimention = 4;
     constexpr int number_of_layers = 4;
     constexpr int number_of_perceptrons_in_layers[number_of_layers]{2,5,3,2};
     Perceptron** perceptrons;
     double** biases = new double*[number_of_layers];
-    std::function<double(double)>** activation_functions = new std::function<double(double)>*[number_of_layers];
+    func_ptr_t** activation_functions = new func_ptr_t*[number_of_layers];
     for (int i = 0; i<number_of_layers; ++i){
         biases[i] = new double[number_of_perceptrons_in_layers[i]]{1.0};
-        activation_functions[i] = new std::function<double(double)>[number_of_perceptrons_in_layers[i]]{sigmoid};
+        activation_functions[i] = new func_ptr_t[number_of_perceptrons_in_layers[i]]{sigmoid};
     }
     MultiLayerPerceptron::initializePerceptrons(input_dimention, number_of_layers, 
                                                 number_of_perceptrons_in_layers,

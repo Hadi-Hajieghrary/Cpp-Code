@@ -1,7 +1,7 @@
 #ifndef __EXCEPTOINS_
 #define __EXCEPTOINS_
 
-#include <exception>
+#include <stdexcept>
 #include <cstdio>
 
 
