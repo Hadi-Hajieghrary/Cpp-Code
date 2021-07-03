@@ -13,6 +13,14 @@ void Print(double** matrix, const size_t row, const size_t col, const char* titl
     std::cout<<"===== "<<title<<" =====\n"<<std::endl;
 }
 
+void Print(double* vector, const size_t row, const char* title) {
+    std::cout<<"\n***** "<<title<<" *****"<<std::endl;
+    for(size_t i = 0; i < row; ++i){
+        std::cout<<vector[i]<<"\n";
+    }
+    std::cout<<"===== "<<title<<" =====\n"<<std::endl;
+}
+
 
 void Test_Perceptron(){
 
@@ -44,18 +52,18 @@ void Test_MLPerceptron(){
     constexpr int number_of_perceptrons_in_layers[number_of_layers]{2,5,3,2};
     Perceptron** perceptrons;
     double** biases = new double*[number_of_layers];
-    func_ptr_t** activation_functions = new func_ptr_t*[number_of_layers];
+    func_ptr_t activation_function{sigmoid};
     for (int i = 0; i<number_of_layers; ++i){
         biases[i] = new double[number_of_perceptrons_in_layers[i]]{1.0};
-        activation_functions[i] = new func_ptr_t[number_of_perceptrons_in_layers[i]]{sigmoid};
     }
     MultiLayerPerceptron::initializePerceptrons(input_dimention, number_of_layers, 
                                                 number_of_perceptrons_in_layers,
                                                 biases,
-                                                activation_functions,
+                                                activation_function,
                                                 perceptrons);
     MultiLayerPerceptron mlp(input_dimention, number_of_layers, 
                              number_of_perceptrons_in_layers , perceptrons);
+
     int rows{0}, cols{0};
     double** mtx{nullptr};
     std::tie (mtx, rows, cols) = mlp.getWeights(0);
@@ -69,6 +77,12 @@ void Test_MLPerceptron(){
 
     std::tie (mtx, rows, cols) = mlp.getWeights(3);
     Print(mtx, rows, cols, "Fourth Layer");
+    double* inputs = new double[input_dimention];
+    for(size_t i = 0; i<input_dimention; ++i){
+        inputs[i] = 1.0 - 2.0 * static_cast<double>(rand())/RAND_MAX;
+    }
+    double * output = mlp.run(inputs);
+    Print(output, number_of_perceptrons_in_layers[number_of_layers-1], "Output");
 
 }
 

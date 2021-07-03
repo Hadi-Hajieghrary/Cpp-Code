@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <random>
-
+#include <iostream>
 #include "exceptions.hpp"
 #include "utilities.hpp"
 

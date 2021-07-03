@@ -64,7 +64,6 @@ void Perceptron::setActivationFunction(double (*activation_function)(double))
 
 double Perceptron::run(double* inputs)
     {
-        
         double result{bias_*weights_[input_dimention_]};
         for(size_t i{0}; i < input_dimention_; ++i){
             result += weights_[i]*inputs[i];
