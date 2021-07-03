@@ -49,6 +49,8 @@ class MultiLayerPerceptron{
         Perceptron* getPerceptron(int layer, int row);
 
         std::tuple<double**, size_t, size_t> getWeights(int layer);
+        std::tuple<double*, size_t> getOutputs(int layer);
+
 
 
 };

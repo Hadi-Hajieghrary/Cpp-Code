@@ -13,6 +13,9 @@ void Perceptron::reScaleInput(int input_dimention)
     {
         input_dimention_ = input_dimention;
         weights_  = new double[input_dimention_+1]{0};
+        for(size_t j{0}; j<input_dimention_+1; j++){
+            weights_[j] = 0.0;
+        }
     }
 
 Perceptron::Perceptron(int input_dimention, double bias, double (*activation_function)(double))
@@ -68,6 +71,8 @@ double Perceptron::run(double* inputs)
         for(size_t i{0}; i < input_dimention_; ++i){
             result += weights_[i]*inputs[i];
         }
+        printf("\nbias_ = %f  and weight = %f\n", bias_*weights_[input_dimention_]);
+        printf("\nOutput of Synapsis %f\n", result);
         result = activation_function_(result);
         output_ = result;
         return result;
