@@ -45,6 +45,35 @@ void MultiLayerPerceptron::initializePerceptrons(const int input_dimention, cons
         }
     }
 
+void MultiLayerPerceptron::initializePerceptrons(const int input_dimention, const int number_of_layers, 
+                                                    const int* number_of_perceptrons_in_layers,
+                                                    double** biases,
+                                                    func_ptr_t** activation_functions,
+                                                    Perceptron**& perceptrons)
+   {
+        perceptrons = new Perceptron*[number_of_layers];
+
+        // First Hiden Layer
+        perceptrons[0] = new Perceptron[number_of_perceptrons_in_layers[0]];
+        for(int j = 0; j<number_of_perceptrons_in_layers[0]; ++j){
+            perceptrons[0][j].reScaleInput(input_dimention);
+            perceptrons[0][j].setBias(biases[0][j]);
+            perceptrons[0][j].setActivationFunction(activation_functions[0][j]);
+            perceptrons[0][j].randomInitializeWeights();
+        }
+        for(size_t i = 1; i<number_of_layers; ++i){
+            perceptrons[i] = new Perceptron[number_of_perceptrons_in_layers[i]];
+            for(int j = 0; j<number_of_perceptrons_in_layers[i]; ++j){
+                perceptrons[i][j].reScaleInput(number_of_perceptrons_in_layers[i-1]);
+                perceptrons[i][j].setBias(biases[i][j]);
+                perceptrons[i][j].setActivationFunction(activation_functions[i][j]);
+                perceptrons[i][j].randomInitializeWeights();
+            }
+        }
+    }
+
+
+
 Perceptron* MultiLayerPerceptron::getPerceptron(int layer, int row)
     {
         return &(perceptrons_[layer][row]);

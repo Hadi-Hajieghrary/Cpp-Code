@@ -52,7 +52,15 @@ void Test_MLPerceptron(){
     int number_of_perceptrons_in_layers[number_of_layers]{2,5,3,2};
     Perceptron** perceptrons;
     double** biases = new double*[number_of_layers];
-    func_ptr_t activation_function{sigmoid};
+    
+    func_ptr_t** activation_functions = new func_ptr_t*[number_of_layers];
+    for(size_t i{0}; i<number_of_layers; ++i){
+        activation_functions[i] = new func_ptr_t[number_of_perceptrons_in_layers[i]];
+        for(size_t j{0}; j< number_of_perceptrons_in_layers[i]; ++j){
+            activation_functions[i][j] = sigmoid;
+        }
+    }
+
     for (int i = 0; i<number_of_layers; ++i){
         biases[i] = new double[number_of_perceptrons_in_layers[i]];
         for(size_t j = 0; j< number_of_perceptrons_in_layers[i]; ++j){
@@ -62,7 +70,7 @@ void Test_MLPerceptron(){
     MultiLayerPerceptron::initializePerceptrons(input_dimention, number_of_layers, 
                                                 number_of_perceptrons_in_layers,
                                                 biases,
-                                                activation_function,
+                                                activation_functions,
                                                 perceptrons);
     MultiLayerPerceptron mlp(input_dimention, number_of_layers, 
                              number_of_perceptrons_in_layers , perceptrons);
@@ -125,7 +133,7 @@ void Test_MLPerceptron(){
     MultiLayerPerceptron::initializePerceptrons(input_dimention, number_of_layers, 
                                                 number_of_perceptrons_in_layers,
                                                 biases,
-                                                activation_function,
+                                                activation_functions[0][0],
                                                 perceptrons);
     // First Layer
     perceptrons[0][0].setWeight(0,-10);

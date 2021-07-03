@@ -39,6 +39,13 @@ class MultiLayerPerceptron{
                                             func_ptr_t activation_function,
                                             Perceptron**& perceptrons);
 
+        static void initializePerceptrons(const int input_dimention, const int number_of_layers, 
+                                            const int* number_of_perceptrons_in_layers,
+                                            double** biases,
+                                            func_ptr_t** activation_functions,
+                                            Perceptron**& perceptrons);
+
+
         MultiLayerPerceptron(const int input_dimention, const int number_of_layers, 
                              const int* number_of_perceptrons_in_layers , Perceptron** perceptrons);
 
