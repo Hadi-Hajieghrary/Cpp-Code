@@ -2,10 +2,10 @@
 #include "ml_perceptron.hpp"
 #include <iostream>
 
-void Print(double** matrix, const size_t row, const size_t col, const char* title) {
+void Print(double** matrix, const unsigned int row, const unsigned int col, const char* title) {
     std::cout<<"\n***** "<<title<<" *****"<<std::endl;
-    for(size_t i = 0; i < row; ++i){
-        for(size_t j = 0; j < col; ++j){
+    for(unsigned int i = 0; i < row; ++i){
+        for(unsigned int j = 0; j < col; ++j){
             std::cout<<matrix[i][j]<<" ";
         }
         std::cout<<std::endl;
@@ -13,9 +13,9 @@ void Print(double** matrix, const size_t row, const size_t col, const char* titl
     std::cout<<"===== "<<title<<" =====\n"<<std::endl;
 }
 
-void Print(double* vector, const size_t row, const char* title) {
+void Print(double* vector, const unsigned int row, const char* title) {
     std::cout<<"\n***** "<<title<<" *****"<<std::endl;
-    for(size_t i = 0; i < row; ++i){
+    for(unsigned int i = 0; i < row; ++i){
         std::cout<<vector[i]<<"\n";
     }
     std::cout<<"===== "<<title<<" =====\n"<<std::endl;
@@ -24,7 +24,7 @@ void Print(double* vector, const size_t row, const char* title) {
 
 void Test_Perceptron(){
 
-    constexpr size_t number_of_inputs{2};
+    constexpr unsigned int number_of_inputs{2};
     Perceptron* p = new Perceptron(number_of_inputs);
     double inp[number_of_inputs]{0.0};
     double W[number_of_inputs+1]{10,10,-15};
@@ -47,23 +47,23 @@ void Test_Perceptron(){
 void Test_MLPerceptron(){
     typedef double(*func_ptr_t)(double);
     printf("*** Testing The MLP Class ***\n");
-    int input_dimention = 4;
-    int number_of_layers = 4;
-    int number_of_perceptrons_in_layers[number_of_layers]{2,5,3,2};
+    unsigned int input_dimention = 4;
+    unsigned int number_of_layers = 4;
+    unsigned int number_of_perceptrons_in_layers[number_of_layers]{2,5,3,2};
     Perceptron** perceptrons;
     double** biases = new double*[number_of_layers];
     
     func_ptr_t** activation_functions = new func_ptr_t*[number_of_layers];
-    for(size_t i{0}; i<number_of_layers; ++i){
+    for(unsigned int i{0}; i<number_of_layers; ++i){
         activation_functions[i] = new func_ptr_t[number_of_perceptrons_in_layers[i]];
-        for(size_t j{0}; j< number_of_perceptrons_in_layers[i]; ++j){
+        for(unsigned int j{0}; j< number_of_perceptrons_in_layers[i]; ++j){
             activation_functions[i][j] = sigmoid;
         }
     }
 
-    for (int i = 0; i<number_of_layers; ++i){
+    for (unsigned int i = 0; i<number_of_layers; ++i){
         biases[i] = new double[number_of_perceptrons_in_layers[i]];
-        for(size_t j = 0; j< number_of_perceptrons_in_layers[i]; ++j){
+        for(unsigned int j = 0; j< number_of_perceptrons_in_layers[i]; ++j){
             biases[i][j] = 1.0;
         }
     }
@@ -75,7 +75,7 @@ void Test_MLPerceptron(){
     MultiLayerPerceptron mlp(input_dimention, number_of_layers, 
                              number_of_perceptrons_in_layers , perceptrons);
 
-    int rows{0}, cols{0};
+    unsigned int rows{0}, cols{0};
     double** mtx{nullptr};
     std::tie (mtx, rows, cols) = mlp.getWeights(0);
     Print(mtx, rows, cols, "First Layer");
@@ -89,15 +89,15 @@ void Test_MLPerceptron(){
     std::tie (mtx, rows, cols) = mlp.getWeights(3);
     Print(mtx, rows, cols, "Fourth Layer");
     double* inputs = new double[input_dimention];
-    for(size_t i = 0; i<input_dimention; ++i){
+    for(unsigned int i = 0; i<input_dimention; ++i){
         inputs[i] = 1.0 - 2.0 * static_cast<double>(rand())/RAND_MAX;
     }
     double * output = mlp.run(inputs);
     Print(output, number_of_perceptrons_in_layers[number_of_layers-1], "Output");
 
-    for(size_t i{0}; i<number_of_layers; ++i){
+    for(unsigned int i{0}; i<number_of_layers; ++i){
         double* outputs;
-        size_t number_of_outputs;
+        unsigned int number_of_outputs;
         std::tie(outputs, number_of_outputs) = mlp.getOutputs(i);
         char* title = new char[30];
         sprintf(title, "Outputs of Layer %d", (int)i);
@@ -118,14 +118,14 @@ void Test_MLPerceptron(){
     number_of_perceptrons_in_layers[0] = 2;
     number_of_perceptrons_in_layers[1] = 1;
     biases = new double*[number_of_layers];
-    for (int i = 0; i<number_of_layers; ++i){
+    for (unsigned int i = 0; i<number_of_layers; ++i){
         biases[i] = new double[number_of_perceptrons_in_layers[i]];
-        for(size_t j = 0; j< number_of_perceptrons_in_layers[i]; ++j){
+        for(unsigned int j = 0; j< number_of_perceptrons_in_layers[i]; ++j){
             biases[i][j] = 1.0;
         }
     }
-    for (int i = 0; i<number_of_layers; ++i){
-        for (int j = 0; j<number_of_perceptrons_in_layers[i]; ++j){
+    for (unsigned int i = 0; i<number_of_layers; ++i){
+        for (unsigned int j = 0; j<number_of_perceptrons_in_layers[i]; ++j){
             std::cout<< biases[i][j]<<' ';
         }
         std::cout<<std::endl;
@@ -152,7 +152,7 @@ void Test_MLPerceptron(){
     double inp[input_dimention]{0.0};
     inp[0] = 0; inp[1] = 0;
     double* layer_output{nullptr};
-    size_t dim{0};
+    unsigned int dim{0};
     printf("\n%d XOR %d = %f\n", 0, 0, mlp_xor.run(inp)[0]);
     std::tie(layer_output, dim) =  mlp_xor.getOutputs(0);
     printf("Outputs of the first Layer: %f %f\n", layer_output[0], layer_output[1]);

@@ -8,14 +8,17 @@
 #include "utilities.hpp"
 
 
+
 class Perceptron{
 
     private:
         
         double* weights_;
-        int input_dimention_{0};
+        unsigned int input_dimention_{0};
         double bias_{0};
+        double sum_of_synapses_{0};
         double output_{0};
+        double d_output_{0};
         double (*activation_function_)(double);
 
     protected:
@@ -25,13 +28,13 @@ class Perceptron{
     public:
 
         Perceptron();
-        Perceptron(int input_dimention, double bias = 1.0, double (*activation_function)(double) = sigmoid);
+        Perceptron(unsigned int input_dimention, double bias = 1.0, double (*activation_function)(double) = sigmoid);
 
         ~Perceptron() = default;
 
         void randomInitializeWeights();
         void setWeights(const double* weights);
-        void setWeight(size_t index, double value);
+        void setWeight(unsigned int index, double value);
 
         void setBias(int bias);
         void setActivationFunction(double (*activation_function)(double));
@@ -40,9 +43,10 @@ class Perceptron{
         double run(double* inputs);
   
         const double* getWeights() const;
-        double getWeight(size_t index) const;
+        double getWeight(unsigned int index) const;
 
         double getOutput() const;
+        double getDOutput(double dx = 0.01);
 
 };
 

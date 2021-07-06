@@ -13,12 +13,12 @@ void Perceptron::reScaleInput(int input_dimention)
     {
         input_dimention_ = input_dimention;
         weights_  = new double[input_dimention_+1]{0};
-        for(size_t j{0}; j<input_dimention_+1; j++){
+        for(unsigned int j{0}; j<input_dimention_+1; j++){
             weights_[j] = 0.0;
         }
     }
 
-Perceptron::Perceptron(int input_dimention, double bias, double (*activation_function)(double))
+Perceptron::Perceptron(unsigned int input_dimention, double bias, double (*activation_function)(double))
     :input_dimention_{input_dimention}, activation_function_{activation_function}, 
         bias_{bias}, weights_{new double[input_dimention_+1]}
     {
@@ -39,18 +39,18 @@ void Perceptron::randomInitializeWeights()
 
 void Perceptron::setWeights(const double* weights)
     {
-        for(size_t i = 0; i<this->input_dimention_ + 1; ++i){
+        for(unsigned int i = 0; i<this->input_dimention_ + 1; ++i){
             weights_[i] = weights[i];
         }
     }
 
 
-void Perceptron::setWeight(size_t index, double value){
+void Perceptron::setWeight(unsigned int index, double value){
     if(index < this->input_dimention_ + 1){
         weights_[index] = value;
     }else{
         char msg[50]{0};
-        sprintf(msg, "There are %d weights. %d is out of range!", this->input_dimention_ + 1, (int)index);
+        sprintf(msg, "There are %ud weights. %ud is out of range!", this->input_dimention_ + 1, index);
         throw std::out_of_range(msg);
     }
 }
@@ -67,23 +67,29 @@ void Perceptron::setActivationFunction(double (*activation_function)(double))
 
 double Perceptron::run(double* inputs)
     {
-        double result{bias_*weights_[input_dimention_]};
-        for(size_t i{0}; i < input_dimention_; ++i){
-            result += weights_[i]*inputs[i];
+        sum_of_synapses_ = bias_*weights_[input_dimention_];
+        for(unsigned int i{0}; i < input_dimention_; ++i){
+            sum_of_synapses_ += weights_[i]*inputs[i];
         }
-        printf("\nbias_ = %f  and weight = %f\n", bias_*weights_[input_dimention_]);
-        printf("\nOutput of Synapsis %f\n", result);
-        result = activation_function_(result);
-        output_ = result;
-        return result;
+        printf("\nbias_ = %f  and weight = %f\n", bias_, weights_[input_dimention_]);
+        printf("\nOutput of Synapsis %f\n", sum_of_synapses_);
+        output_ = activation_function_(sum_of_synapses_);
+
+        return output_;
     }
 
+double Perceptron::getDOutput(double dx)
+    {
+        d_output_ = (activation_function_(sum_of_synapses_ + dx) - activation_function_(sum_of_synapses_ - dx) )
+                        /(2.0 * dx);
+        return d_output_;
+    }
 
 const double* Perceptron::getWeights() const{
     return weights_;
 }
 
-double Perceptron::getWeight(size_t index) const{
+double Perceptron::getWeight(unsigned int index) const{
     double result;
     if(index < this->input_dimention_ + 1){
         result = weights_[index];
