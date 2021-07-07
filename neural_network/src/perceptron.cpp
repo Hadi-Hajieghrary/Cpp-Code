@@ -65,14 +65,20 @@ void Perceptron::setActivationFunction(double (*activation_function)(double))
         activation_function_ = activation_function;
     }
 
+
+int Perceptron::getBias() const
+    {
+        return bias_;
+    }
+    
 double Perceptron::run(double* inputs)
     {
         sum_of_synapses_ = bias_*weights_[input_dimention_];
         for(unsigned int i{0}; i < input_dimention_; ++i){
             sum_of_synapses_ += weights_[i]*inputs[i];
         }
-        printf("\nbias_ = %f  and weight = %f\n", bias_, weights_[input_dimention_]);
-        printf("\nOutput of Synapsis %f\n", sum_of_synapses_);
+        //printf("\nbias_ = %f  and weight = %f\n", bias_, weights_[input_dimention_]);
+        //printf("\nOutput of Synapsis %f\n", sum_of_synapses_);
         output_ = activation_function_(sum_of_synapses_);
 
         return output_;

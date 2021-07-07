@@ -111,7 +111,7 @@ void MultiLayerPerceptron::runOneLayer(unsigned int layer, double* inputs)
     {
         for(int i = 0; i<number_of_perceptrons_in_layers_[layer]; ++i){
             const double* W = perceptrons_[layer][i].getWeights();
-            printf("\nWeights of the Perceptron %d in Layer %d: %lf %lf %lf\n",i, (int)layer, W[0],W[1],W[2]);
+            //printf("\nWeights of the Perceptron %d in Layer %d: %lf %lf %lf\n",i, (int)layer, W[0],W[1],W[2]);
             perceptrons_[layer][i].run(inputs);
             outputs_[layer][i] = perceptrons_[layer][i].getOutput();
             d_outputs_[layer][i] = perceptrons_[layer][i].getDOutput();
@@ -121,7 +121,11 @@ void MultiLayerPerceptron::runOneLayer(unsigned int layer, double* inputs)
 
 double* MultiLayerPerceptron::run(double* inputs)
     {
-        runOneLayer(0, inputs);
+        inputs_ = new double[input_dimention_]{0.0};
+        for(unsigned int i = 0; i<input_dimention_; ++i){
+            inputs_[i] = inputs[i];
+        }
+        runOneLayer(0, inputs_);
         for(unsigned int l = 1; l< number_of_layers_; ++l){
             runOneLayer(l, outputs_[l-1]);
         }
@@ -162,7 +166,6 @@ std::tuple<double*, unsigned int> MultiLayerPerceptron::getOutputs()
 void MultiLayerPerceptron::calculateErrorTerms(double* reference_outputs)
     { 
         double* outputs;
-
         error_terms_ = new double*[number_of_layers_];
         for(unsigned int i{0}; i<number_of_layers_; ++i){
             error_terms_[i] = new double[number_of_perceptrons_in_layers_[i]];
@@ -170,15 +173,12 @@ void MultiLayerPerceptron::calculateErrorTerms(double* reference_outputs)
                 error_terms_[i][j] = 0.0;
             }
         }
-        
         for(unsigned int j{0}; j<number_of_perceptrons_in_layers_[number_of_layers_-1]; ++j){
             error_terms_[number_of_layers_-1][j] = d_outputs_[number_of_layers_ - 1][j] *
                                                     (reference_outputs[j] - outputs_[number_of_layers_ - 1][j]);
         }
-
-        for(unsigned int i{number_of_layers_-2}; i>=0; --i){
+        for(unsigned int i{number_of_layers_-2}; i-->0; ){
             for(unsigned int j{0}; j<number_of_perceptrons_in_layers_[i]; ++j){
-                
                 for(unsigned int k = 0; k < number_of_perceptrons_in_layers_[i+1]; ++k){
                     error_terms_[i][j] += perceptrons_[i+1][k].getWeight(j)*error_terms_[i+1][k];
                 }
@@ -188,17 +188,33 @@ void MultiLayerPerceptron::calculateErrorTerms(double* reference_outputs)
     }
 
 
-void MultiLayerPerceptron::adjustWeights(double learning_rate)
+void MultiLayerPerceptron::adjustWeights(double* reference_outputs, double learning_rate)
     {
-        for(unsigned int l{0}; l<number_of_layers_; ++l){
+        calculateErrorTerms(reference_outputs);
+
+        for(unsigned int p{0}; p<number_of_perceptrons_in_layers_[0]; ++p){
+            for(unsigned int i{0}; i<input_dimention_; ++i){
+                double delta = learning_rate * error_terms_[0][p]*inputs_[i];
+            }
+            // bias term
+            int i = input_dimention_;
+            double delta = learning_rate * error_terms_[0][p]*perceptrons_[0][p].getBias();
+            perceptrons_[0][p].setWeight(i, perceptrons_[0][p].getWeight(i) + delta);
+        }
+
+        for(unsigned int l{1}; l<number_of_layers_; ++l){
             for(unsigned int p{0}; p<number_of_perceptrons_in_layers_[l]; ++p){
-                for(unsigned int i{0}; i<number_of_perceptrons_in_layers_[l-1]+1; ++i){
+                for(unsigned int i{0}; i<number_of_perceptrons_in_layers_[l-1]; ++i){
                     double delta = learning_rate * error_terms_[l][p]*outputs_[l-1][i];
-                    perceptrons_[l][p].setWeight(i, perceptrons_[l][p].getWeight(i) + delta);
                 }
+                // bias term
+                int i = number_of_perceptrons_in_layers_[l-1];
+                double delta = learning_rate * error_terms_[l][p]*perceptrons_[l][p].getBias();
+                perceptrons_[l][p].setWeight(i, perceptrons_[l][p].getWeight(i) + delta);
             }
         }
     }
+
 
 
 

@@ -45,6 +45,8 @@ class Perceptron{
         const double* getWeights() const;
         double getWeight(unsigned int index) const;
 
+        int getBias() const;
+
         double getOutput() const;
         double getDOutput(double dx = 0.01);
 

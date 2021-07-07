@@ -18,14 +18,15 @@ class MultiLayerPerceptron{
     private:
         
         const unsigned int input_dimention_{0};
+        double* inputs_{nullptr};
 
         const unsigned int number_of_layers_{0};
         const unsigned int* number_of_perceptrons_in_layers_{nullptr};
         
         Perceptron** perceptrons_ = nullptr; 
-        double** outputs_ = nullptr;
-        double** d_outputs_ = nullptr; 
-        double** error_terms_ = nullptr; 
+        double** outputs_{nullptr};
+        double** d_outputs_{nullptr}; 
+        double** error_terms_{nullptr}; 
 
         typedef double(*func_ptr_t)(double);
 
@@ -34,8 +35,7 @@ class MultiLayerPerceptron{
         void runOneLayer(unsigned int layer, double* inputs);
 
         void calculateErrorTerms(double* reference_outputs);
-        void adjustWeights(double learning_rate = 0.01);
-
+        
     public:
 
         static void initializePerceptrons(const unsigned int input_dimention, const unsigned int number_of_layers, 
@@ -65,6 +65,7 @@ class MultiLayerPerceptron{
 
         std::tuple<double*, unsigned int> getOutputs();
 
+        void adjustWeights(double* reference_outputs, double learning_rate = 0.01);
 
 };
 

@@ -174,19 +174,72 @@ void Test_MLPerceptron(){
     
     printf("*** END ***\n");
 
-
 }
 
 
+void Test_TrainingMLP(){
+    
+        
+    printf("*** Testing  Training The MLP ***\n");
+    
+    typedef double(*func_ptr_t)(double);
+    unsigned int input_dimention = 2;
+    unsigned int number_of_layers = 3;
+    unsigned int number_of_perceptrons_in_layers[number_of_layers]{2,3,1};
+    Perceptron** perceptrons;
+    double** biases = new double*[number_of_layers];
+    func_ptr_t** activation_functions = new func_ptr_t*[number_of_layers];
+    for(unsigned int i{0}; i<number_of_layers; ++i){
+        activation_functions[i] = new func_ptr_t[number_of_perceptrons_in_layers[i]];
+        for(unsigned int j{0}; j< number_of_perceptrons_in_layers[i]; ++j){
+            activation_functions[i][j] = sigmoid;
+        }
+    }
+    for (unsigned int i = 0; i<number_of_layers; ++i){
+        biases[i] = new double[number_of_perceptrons_in_layers[i]];
+        for(unsigned int j = 0; j< number_of_perceptrons_in_layers[i]; ++j){
+            biases[i][j] = 1.0;
+        }
+    }
+    // Initialize the MLP with Random weights
+    MultiLayerPerceptron::initializePerceptrons(input_dimention, number_of_layers, 
+                                                number_of_perceptrons_in_layers,
+                                                biases,
+                                                activation_functions,
+                                                perceptrons);
+    MultiLayerPerceptron mlp(input_dimention, number_of_layers, 
+                             number_of_perceptrons_in_layers , perceptrons);
 
-double func(double arg){
-    return arg;
+    double* inputs = new double[input_dimention]{1,1};
+    double* reference_outputs = new double[1]{0.0};
+    double * output = mlp.run(inputs);
+    Print(inputs, input_dimention, "Inputs");
+
+    for(int itr{0}; itr<100; ++itr){
+        std::cout<<"Iteration: "<<itr<<std::endl;
+        for(unsigned int i{0}; i<number_of_layers; ++i){
+            double* outputs;
+            unsigned int number_of_outputs;
+            std::tie(outputs, number_of_outputs) = mlp.getOutputs(i);
+            char* title = new char[30];
+            sprintf(title, "Outputs of Layer %d", (int)i);
+            Print(outputs, number_of_outputs, title );
+        }
+
+        mlp.adjustWeights(reference_outputs,1.0);
+        output = mlp.run(inputs);
+    }
+
+
+
+
 }
+
 
 int main(int atgc, char** argv){
 
-    Test_Perceptron();
-    Test_MLPerceptron();
- 
+    //Test_Perceptron();
+    //Test_MLPerceptron();
+    Test_TrainingMLP();
     return 0;
 }
