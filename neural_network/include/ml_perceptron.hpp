@@ -40,6 +40,12 @@ class MultiLayerPerceptron{
 
         static void initializePerceptrons(const unsigned int input_dimention, const unsigned int number_of_layers, 
                                             const unsigned int* number_of_perceptrons_in_layers,
+                                            double bias,
+                                            func_ptr_t activation_function,
+                                            Perceptron**& perceptrons);
+
+        static void initializePerceptrons(const unsigned int input_dimention, const unsigned int number_of_layers, 
+                                            const unsigned int* number_of_perceptrons_in_layers,
                                             double** biases,
                                             func_ptr_t activation_function,
                                             Perceptron**& perceptrons);
@@ -56,15 +62,23 @@ class MultiLayerPerceptron{
 
         ~MultiLayerPerceptron() = default;
 
+        // Run inputs through the Network and return the outputs
         double* run(double* inputs);
+
 
         Perceptron* getPerceptron(int layer, int row);
 
         std::tuple<double**, unsigned int, unsigned int> getWeights(int layer);
+        
+        // Get the current outputs of any layers.
+        // The outputs are going to be set after each time an input run through the network
         std::tuple<double*, unsigned int> getOutputs(int layer);
-
+        // Get the outputs of the last layer of the network - Outputs of the Network
         std::tuple<double*, unsigned int> getOutputs();
 
+        // Perform Backpropagathin for just one set of Inputs - Outputs
+        // This Function will not do forward feed. Befor running this th inputs
+        // must have been run through the network
         void adjustWeights(double* reference_outputs, double learning_rate = 0.01);
 
 };

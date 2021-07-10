@@ -11,8 +11,11 @@ add_executable(${PROJECT_NAME} main.cpp src/perceptron.cpp src/exceptions.cpp sr
 find_package(ROOT 6.16 CONFIG REQUIRED)
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
-include_directories(${PROJECT_NAME} PUBLIC include ${ROOT_INCLUDE_DIRS})
+include_directories(${PROJECT_NAME} PUBLIC include ${ROOT_INCLUDE_DIRS} include/minst)
 
+# Pass MNIST data directory to main.cpp
+set(MNIST_DATA_DIR ${CMAKE_CURRENT_LIST_DIR}/datasets/mnist)
+target_compile_definitions(${PROJECT_NAME} PRIVATE MNIST_DATA_LOCATION="${MNIST_DATA_DIR}")
 
 target_link_libraries (${PROJECT_NAME} PUBLIC ROOT::Core ROOT::Gui ROOT::Hist ROOT::Gpad Eigen3::Eigen)
 

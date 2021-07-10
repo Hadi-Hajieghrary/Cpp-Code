@@ -15,9 +15,18 @@
 #include "TGFrame.h"
 #include "TVirtualPad.h"
 
+#include "mnist/mnist_reader.hpp"
 
 
-void Print(double** matrix, const unsigned int row, const unsigned int col, const char* title) {
+void Print(uint8_t* vector, const unsigned int row, const char* title = "") {
+    std::cout<<"\n***** "<<title<<" *****"<<std::endl;
+    for(unsigned int i = 0; i < row; ++i){
+        std::cout<<static_cast<int>(vector[i])<<" ";
+    }
+    std::cout<<"===== "<<title<<" =====\n"<<std::endl;
+}
+
+void Print(double** matrix, const unsigned int row, const unsigned int col, const char* title = "") {
     std::cout<<"\n***** "<<title<<" *****"<<std::endl;
     for(unsigned int i = 0; i < row; ++i){
         for(unsigned int j = 0; j < col; ++j){
@@ -285,10 +294,74 @@ void Test_TrainingMLP(){
 }
 
 
+void Test_TrainingMLP_MNIST(){
+
+    //load the dataset
+    mnist::MNIST_dataset<std::vector, std::vector<uint8_t>, uint8_t> dataset =
+                    mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>(MNIST_DATA_LOCATION);
+    
+    // Set up the Network
+    const unsigned int input_dimention = 784;
+    const unsigned int number_of_layers = 3;
+    unsigned int number_of_perceptrons_in_layers[number_of_layers]{50,10,1};
+    auto activation_function{sigmoid};
+    Perceptron** perceptrons;
+    double bias = 1.0;
+
+    MultiLayerPerceptron::initializePerceptrons(input_dimention, number_of_layers, 
+                                                number_of_perceptrons_in_layers,
+                                                bias,
+                                                activation_function,
+                                                perceptrons);
+
+    MultiLayerPerceptron mlp(input_dimention, number_of_layers, number_of_perceptrons_in_layers , perceptrons);
+
+
+    constexpr int number_of_itteration = 10;
+    std::vector<double> residual_err;
+    residual_err.reserve(number_of_itteration);
+
+    const size_t trining_data_number = dataset.training_images.size();
+
+    for(int itr{0}; itr<number_of_itteration; ++itr){
+        std::cout<<"Iteration: "<<itr<<std::endl;
+        residual_err[itr] = 0.0;
+        for(size_t n{0}; n<trining_data_number; ++n){
+            // TODO - Make the MLP/Perceptron a Template Classs
+            // TODO - Memory management - MLP should release memory 
+            std::vector<double> input_vec(dataset.training_images[n].begin(), dataset.training_images[n].end());
+            double* output = mlp.run(input_vec.data());
+            double reference_output = static_cast<double>(dataset.training_labels[n]);
+            mlp.adjustWeights(&reference_output, 0.1);
+            residual_err[itr]+=std::abs(*output - reference_output);
+        }
+        std::cout<<residual_err[itr]<<' '<<std::endl;
+    }
+}
+
+
 int main(int argc, char** argv){
 
-
     
+    //mnist::MNIST_dataset<std::vector, std::vector<uint8_t>, uint8_t> dataset =
+    //                mnist::read_dataset<std::vector, std::vector, uint8_t, uint8_t>(MNIST_DATA_LOCATION);
+    // 
+    /*
+    std::cout << "Nbr of training images = " << dataset.training_images.size() << std::endl;
+    std::cout << "Nbr of training labels = " << dataset.training_labels.size() << std::endl;
+    std::cout << "Nbr of test images = " << dataset.test_images.size() << std::endl;
+    std::cout << "Nbr of test labels = " << dataset.test_labels.size() << std::endl;
+    
+
+    std::cout<<dataset.training_images[0].size()<<std::endl;
+    std::cout<<(uint)dataset.training_labels[1]<<std::endl;
+    std::cout<<(uint)dataset.training_labels[2]<<std::endl;
+    std::cout<<(uint)dataset.training_labels[3]<<std::endl;
+    std::cout<<(uint)dataset.training_labels[4]<<std::endl;
+    */
+    Test_TrainingMLP_MNIST();
+
+    /*
     TApplication theApp("App", &argc, argv);
 	if (gROOT->IsBatch()) {
 	    fprintf(stderr, "%s: cannot run in batch mode\n", argv[0]);
@@ -301,6 +374,6 @@ int main(int argc, char** argv){
     Test_TrainingMLP();
 
 	theApp.Run();
-
+    */
     return 0;
 }
