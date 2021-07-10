@@ -1,6 +1,21 @@
 #include "perceptron.hpp"
 #include "ml_perceptron.hpp"
 #include <iostream>
+#include <vector>
+
+#include "TAxis.h"
+#include "TGraph.h"
+#include "TMultiGraph.h"
+#include "TCanvas.h"
+#include "TApplication.h"
+#include "TStyle.h"
+#include "TPad.h"
+#include "TROOT.h"
+#include "TColor.h"
+#include "TGFrame.h"
+#include "TVirtualPad.h"
+
+
 
 void Print(double** matrix, const unsigned int row, const unsigned int col, const char* title) {
     std::cout<<"\n***** "<<title<<" *****"<<std::endl;
@@ -21,6 +36,35 @@ void Print(double* vector, const unsigned int row, const char* title) {
     std::cout<<"===== "<<title<<" =====\n"<<std::endl;
 }
 
+template <typename T>
+void PlotVector(std::vector<T> arr){
+    
+	TCanvas *canv_err = new TCanvas("canv_err","Output Error",200,10,700,500);
+	canv_err->SetFillColor(42);
+	canv_err->SetGrid();
+
+	const int n = arr.size();
+	double* x = new double[n];
+    double* y = arr.data();
+	for (int i=0;i<n;i++) {
+		x[i] = i;
+	}
+    
+	TGraph *graph_err = new TGraph(n,x,y);
+	graph_err->SetLineColor(2);
+	graph_err->SetLineWidth(4);
+	graph_err->SetMarkerColor(4);
+	graph_err->SetMarkerStyle(21);
+	graph_err->SetTitle("Error Plot");
+	graph_err->GetXaxis()->SetTitle("Sample");
+	graph_err->GetYaxis()->SetTitle("Error");
+	graph_err->Draw("ACP");
+    
+	canv_err->Update();
+	canv_err->Modified();
+	canv_err->Connect("Closed()", "TApplication", gApplication, "Terminate()");
+    
+}
 
 void Test_Perceptron(){
 
@@ -212,34 +256,51 @@ void Test_TrainingMLP(){
 
     double* inputs = new double[input_dimention]{1,1};
     double* reference_outputs = new double[1]{0.0};
-    double * output = mlp.run(inputs);
     Print(inputs, input_dimention, "Inputs");
+    
+    constexpr int number_of_itteration = 100;
+    std::vector<double> residual_err;
+    residual_err.reserve(number_of_itteration);
 
-    for(int itr{0}; itr<100; ++itr){
+    for(int itr{0}; itr<number_of_itteration; ++itr){
         std::cout<<"Iteration: "<<itr<<std::endl;
+        double* output = mlp.run(inputs);
+        residual_err.push_back(std::abs(*output - *reference_outputs));
         for(unsigned int i{0}; i<number_of_layers; ++i){
-            double* outputs;
-            unsigned int number_of_outputs;
+            double* outputs{nullptr};
+            unsigned int number_of_outputs{0};
             std::tie(outputs, number_of_outputs) = mlp.getOutputs(i);
             char* title = new char[30];
             sprintf(title, "Outputs of Layer %d", (int)i);
             Print(outputs, number_of_outputs, title );
+            
         }
-
         mlp.adjustWeights(reference_outputs,1.0);
-        output = mlp.run(inputs);
     }
 
 
+    PlotVector(residual_err);
 
 
 }
 
 
-int main(int atgc, char** argv){
+int main(int argc, char** argv){
 
-    //Test_Perceptron();
+
+    
+    TApplication theApp("App", &argc, argv);
+	if (gROOT->IsBatch()) {
+	    fprintf(stderr, "%s: cannot run in batch mode\n", argv[0]);
+	    return 1;
+	}
+    
+
+	//Test_Perceptron();
     //Test_MLPerceptron();
     Test_TrainingMLP();
+
+	theApp.Run();
+
     return 0;
 }
