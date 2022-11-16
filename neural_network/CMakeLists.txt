@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(neural_network VERSION 0.1.0)
 
+
+# IMPORTANT 
+#The C++ compiler and standard for your program would need match the C++ standard with which ROOT has been compiled. 
+# You can check ROOT’s settings with:
+# >> root-config --cflags
+
 add_definitions(-std=c++17 -DEIGEN_MATRIX_PLUGIN="Matrix_initializer_list.h" -DEIGEN_ARRAY_PLUGIN="Array_initializer_list.h")
 
 
