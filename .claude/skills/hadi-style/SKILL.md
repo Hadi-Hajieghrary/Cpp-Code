@@ -1,6 +1,6 @@
 ---
 name: hadi-style
-description: Apply Hadi Hajieghrary's coding and documentation conventions when writing or editing C++, Python, or Markdown/prose in the Cpp-Code and Rule_Book repositories. Covers project layout, naming (PascalCase types, camel/snake callables, trailing-underscore privates), interface/implementation separation, RAII and resource ownership, labeled error messages and console output (***** title ***** delimiters), explicit loops over hidden abstractions, coarse-grained std::thread / ThreadPoolExecutor parallelism, vendored third-party code with license citations, co-located validation/demo functions, and terse-at-call-site / verbose-in-implementation comment style. Use this skill any time the task involves authoring or modifying source files, headers, README/docs, or examples in these repos.
+description: Apply Hadi Hajieghrary's coding and academic-writing conventions when editing C++, Python, Markdown/prose, LaTeX, or BibTeX in the Cpp-Code and Rule_Book repositories — including IEEE conference papers (ICRA/IROS), the geometric-control PhD thesis, and related research notes. Code side covers project layout, naming (PascalCase types, camel/snake callables, trailing-underscore privates), interface/implementation separation, RAII and resource ownership, labeled error messages and console output (***** title ***** delimiters), explicit loops, coarse-grained std::thread / ThreadPoolExecutor parallelism, vendored third-party code with license citations, and co-located validation. Academic side covers IEEE section template (I. INTRODUCTION → … → V. CONCLUSIONS with A./B./C. subsections), numbered equations and ≜/:= definitions, Theorem N.N (Name) blocks, first-use abbreviation policy, "We …" first-person-plural voice, Fig. N: full-sentence captions with subfigure labels, the end-of-intro contribution paragraph, "In this paper we addressed…" conclusion template, IEEE numbered references, and a quirks-to-fix list (Riemannian spelling, doubled articles, translation-y phrasings, closed-loop hyphenation). Use any time the task involves authoring or modifying source files, headers, README/docs, LaTeX, .bib, or paper/thesis prose in these repos.
 ---
 
 # hadi-style — coding & documentation conventions
@@ -125,9 +125,124 @@ Terse at the call site, verbose in the implementation.
 - Benchmark / perf data goes inline as a comment in code; in docs, put it in a table or callout — not buried in a sentence.
 - Commented-out code is acceptable as a record of alternatives (`drawing_fractal/main.cpp:134-161, 181-202` preserves both sequential and parallel variants). When you do this, add a one-line comment saying **why** one is preferred.
 
+## 12. Academic writing (papers and thesis)
+
+Sections 1–11 cover code, README, and inline-comment writing. Academic writing — IEEE conference papers (ICRA, IROS, …), the geometric-control PhD thesis, and longer research notes in `Rule_Book` — follows a tighter template derived from the patterns visible across the published work.
+
+### 12.1 Section structure
+
+**Conference paper** (IROS, ICRA, etc.):
+```
+I.   INTRODUCTION           — motivation + literature woven in; ends with contribution paragraph
+II.  <Background / Preliminaries>
+III. <Method / Approach>
+       A. <Sub-problem 1>
+       B. <Sub-problem 2>
+       C. Controller Synthesis (or analogous)
+IV.  RESULTS
+       A. Simulation Results
+       B. Experimental Results
+V.   CONCLUSIONS (and Future Work)
+References [1]…[N]
+```
+- Roman numerals for top sections, capital letters for subsections.
+- Related work is **woven into the introduction**, not its own section.
+
+**Thesis / monograph**:
+```
+Chapter 1: Introduction
+    1.1 Literature Review
+    1.2 Contributions of This Research
+    1.3 Organization of this Document
+Chapter 2: Mathematical Preliminaries
+    2.1 …
+Chapter N: Concluding Remarks
+    N.1 Suggested Future Work
+Bibliography
+```
+- Decimal numbering for sections (`1.1`, `1.2`, …).
+- Always keep §1.3 "Organization of this Document" — a roadmap paragraph mapping every later chapter.
+
+### 12.2 Voice and tense
+
+- First-person **plural** for the body: *"We present…"*, *"We consider…"*, *"We are interested in…"*, *"We address…"*. Even single-author papers use "we".
+- First-person **singular** only in Acknowledgments and "Suggested Future Work" of the thesis: *"I would like to suggest…"*.
+- Chapter introductions take **future tense**: *"In Chapter 3 we will examine…"*.
+- Passive for results (*"It can be shown that…"*) mixed with active for design choices (*"We define the tracking errors as `e_x(t) ≜ x(t) − x_r(t)`"*).
+
+### 12.3 Math and equation conventions
+
+- Numbered, displayed equations using `(N)` right-aligned. Reference in-text as `(8)`, `from (12)`, `given by (3.2)` (the thesis uses chapter-prefixed numbers).
+- Definitions: `≜` or `:=` (`q_i ≜ [x_i, y_i, θ_i]^T`); reserve `=` for equalities.
+- Vectors and matrices italic with explicit `^T` for transpose; subscripts for indices (`q_i`, `θ_i`); hats / tildes / bars for estimates and transforms (`μ̃_{x̃_i}`, `Ṽ_{still_i}`).
+- **Theorem / Lemma / Proposition** as labeled blocks with a parenthetical name when classical: `Theorem 2.4.1 (Frobenius Theorem). A regular distribution is integrable if and only if it is involutive. [17]`. Cite the source in brackets when restating a known result.
+- One equation per concept. Display dense derivations; don't bury them inline.
+
+### 12.4 Figures and captions
+
+- Caption prefix: `Fig. N:` (paper) or `Figure C.N:` (thesis).
+- Captions are **complete sentences**, usually two: one descriptive, one interpretive. Example: *"Fig. 3: Simulation results for the proposed kinematic closed-loop control of two boats hauling a floated load. After a transient state both boats turn to move parallel to the load."*
+- Subfigures: `(a)`, `(b)`, `(c)`, `(d)` with short sub-captions like `(a) Trajectory`, `(b) Bearings (attitude)`.
+- Reference in-text as `Fig. N` or `see Fig. 1`.
+
+### 12.5 Abbreviations
+
+Define on first use, abbreviation thereafter — without exception:
+- *autonomous surface vehicles (ASVs)*
+- *Markov Decision Process (MDP)*
+- *Multi-Robot Coherent Structure Testbed (mCoSTe)*
+- *Regional Ocean Model System (ROMS)*
+- *Robot Operating System (ROS)*
+
+If the abbreviation never gets reused, drop it and spell out each occurrence.
+
+### 12.6 End-of-introduction contribution paragraph
+
+Every paper's introduction ends with an explicit "what we do differently" paragraph. Standard openers:
+- *"Different from existing approaches, we …"*
+- *"In this work, we build upon our existing work [N] and present …"*
+- *"Different from our previous work, we explicitly …"*
+
+Pair with a one-line preview of the result: *"Our results suggest that the proposed strategy is robust in the presence of disturbances and model uncertainties."*
+
+### 12.7 Conclusion template
+
+Closing section is short and predictable:
+1. Opener sentence: *"In this paper we addressed the cooperative transport problem for a team of ASVs towing a buoyant load."*
+2. Recap of the contribution in 3–5 sentences.
+3. Validation result in one sentence.
+4. **Future Work** — bullet list or short paragraphs of next directions.
+
+### 12.8 References
+
+IEEE numbered style. In-text `[N]` or `Author et al. in [N]`. Entry format:
+```
+[N] A. Author, B. Author, and C. Author, "Title in title case," Venue Abbrev., vol. X, no. Y, pp. A-B, Year.
+```
+Conference papers use the conference name; journals use the abbreviated journal title with vol/no/pp.
+
+## 13. Linguistic quirks to fix on sight
+
+These recur across the existing work — correct them when editing, don't propagate them:
+
+| Quirk | Correction |
+|---|---|
+| `Reimannian` | **Riemannian** (proper noun, after Bernhard Riemann) |
+| Doubled articles: `the the controller`, `the the load` | Drop the duplicate |
+| `investigates the fundamental concepts` (in past-tense context) | `investigated` |
+| Missing articles / wrong number: `for a class of constrained system` | `for a class of constrained systems` |
+| Stacked translation-y phrasings: *"To embolden the significance of the solution this research proposes"* | Rewrite for directness: *"To demonstrate the value of the proposed method, we …"* |
+| `the agents are subjected to various holonomic and nonholonomic constraints` | `the agents are subject to holonomic and non-holonomic constraints` |
+| `nonholonomic` vs `non-holonomic` (both appear) | Standardize on **non-holonomic** |
+| Echoed phrasing: `arise from arise from` | Remove the repetition |
+| `close loop` | `closed-loop` (hyphenated, adjectival) |
+| Tense slipping between past/present in the same paragraph | One tense per paragraph — present for methodology, past for completed experiments |
+
+If the user explicitly asks to preserve their voice verbatim, do so — but flag the quirk so it's a conscious choice, not drift.
+
 ## One-page checklist
 
-Run through this before considering any new file/function/doc done.
+Run through this before considering any new file/function/section done.
 
 | Question | Pass criterion |
 |---|---|
@@ -140,11 +255,13 @@ Run through this before considering any new file/function/doc done.
 | Algorithms explicit? | Plain loops; hidden indirection only when perf demands it. |
 | External material attributed? | Vendor subdir, namespace, license citation. |
 | Validation present? | Demo function or example exercising the main path. |
+| **Academic prose?** | IEEE template, "we" voice, abbreviations defined on first use, `Fig. N:` full-sentence captions, equations numbered with `(N)`, contribution paragraph at end of intro, conclusion + future work, no quirks from §13. |
 
 ## When this skill applies
 
-- Writing or editing any `.cpp`, `.hpp`, `.h`, `.py`, `.md`, `README*`, or docstring in `Cpp-Code` or `Rule_Book`.
-- Reviewing diffs in those repos — check each item against the one-page checklist.
-- Generating new modules, scripts, or examples that will live in those repos.
+- Writing or editing `.cpp`, `.hpp`, `.h`, `.py`, `.md`, `.tex`, `.bib`, `README*`, or docstrings in `Cpp-Code` or `Rule_Book`.
+- Drafting or revising IEEE-style conference papers, dissertation chapters, and longer-form research notes that live in (or will move to) those repos.
+- Reviewing diffs in those repos — run each item against the one-page checklist.
+- Generating new modules, scripts, paper sections, or examples for those repos.
 
 When the user's instruction conflicts with these conventions, the user wins — but flag the conflict so it's a conscious decision, not drift.
